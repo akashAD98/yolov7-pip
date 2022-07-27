@@ -8,7 +8,7 @@ include LICENSE
 include setup.py
 
 # Include the data files
-recursive-include yolov7-main/data *
+recursive-include yolov7/data *
 
 # Include the yml files in models folder
-recursive-include yolov7-main/models *
+recursive-include yolov7/models *
