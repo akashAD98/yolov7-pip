@@ -1,12 +1,11 @@
 from pathlib import Path
 
-#from yolov7.models.common import AutoShape, DetectMultiBackend
-from yolov7.models.experimental import attempt_load
 from yolov7.utils.general import LOGGER, logging
 from yolov7.utils.torch_utils import torch
+from yolov7.models.experimental import attempt_load
+from yolov7.utils.torch_utils import  TracedModel
 
-
-def load_model(model_path, device=None, autoshape=True, verbose=False):
+def load_model(model_path, device=None, verbose=False, trace=True, size=640, half=False):
     """
     Creates a specified YOLOv5 model
     Arguments:
@@ -29,11 +28,14 @@ def load_model(model_path, device=None, autoshape=True, verbose=False):
     elif type(device) is str:
         device = torch.device(device)
 
-    model = DetectMultiBackend(model_path, device=device)
-
-    if autoshape:
-        model = AutoShape(model)  # for file/URI/PIL/cv2/np inputs and NMS
-    return model.to(device)
+    model = attempt_load(model_path, map_location=device)
+    if trace:
+        model = TracedModel(model, device, size)
+   
+    if half:
+        model.half()   
+    
+    return model  
     
 class YOLOv7:
     def __init__(self, model_path, device=None, load_on_init=True):
@@ -41,7 +43,7 @@ class YOLOv7:
         self.device = device
         if load_on_init:
             Path(model_path).parents[0].mkdir(parents=True, exist_ok=True)
-            self.model = load_model(model_path=model_path, device=device, autoshape=True)
+            self.model = load_model(model_path=model_path, device=device, trace=True, size=640)
         else:
             self.model = None
 
@@ -50,7 +52,7 @@ class YOLOv7:
         Load yolov7 weight.
         """
         Path(self.model_path).parents[0].mkdir(parents=True, exist_ok=True)
-        self.model = load_model(model_path=self.model_path, device=self.device, autoshape=True)
+        self.model = load_model(model_path=model_path, device=device, trace=True, size=640)
 
     def predict(self, image_list, size=640, augment=False):
         """
@@ -64,8 +66,8 @@ class YOLOv7:
 if __name__ == "__main__":
     model_path = "yolov7/weights/yolov7.pt"
     device = "cuda"
-    model = load_model(model_path=model_path, device=device)
+    model = load_model(model_path, device, trace=True, size=640)
 
     from PIL import Image
-    imgs = [Image.open(x) for x in Path("yolov7/data/images").glob("*.jpg")]
+    imgs = [Image.open(x) for x in Path("yolov7/inference/images").glob("*.jpg")]
     results = model(imgs)
