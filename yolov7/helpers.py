@@ -7,16 +7,16 @@ from yolov7.utils.torch_utils import  TracedModel
 
 def load_model(model_path, device=None, verbose=False, trace=True, size=640, half=False):
     """
-    Creates a specified YOLOv5 model
+    Creates a specified YOLOv7 model
     Arguments:
         model_path (str): path of the model
         device (str): select device that model will be loaded (cpu, cuda)
         pretrained (bool): load pretrained weights into the model
         autoshape (bool): make model ready for inference
-        verbose (bool): if False, yolov5 logs will be silent
+        verbose (bool): if False, yolov7 logs will be silent
     Returns:
         pytorch model
-    (Adapted from yolov5.hubconf.create)
+    (Adapted from yolov7.hubconf.create)
     """
     # set logging
     if not verbose:
