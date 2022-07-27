@@ -66,7 +66,7 @@ class YOLOv7:
 if __name__ == "__main__":
     model_path = "yolov7/weights/yolov7.pt"
     device = "cuda"
-    model = load_model(model_path=model_path, device=device)
+    model = load_model(model_path, device, trace=True, size=640)
 
     from PIL import Image
     imgs = [Image.open(x) for x in Path("yolov7/inference/images").glob("*.jpg")]
