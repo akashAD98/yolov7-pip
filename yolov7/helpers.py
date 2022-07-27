@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from yolov7.models.common import AutoShape, DetectMultiBackend
+#from yolov7.models.common import AutoShape, DetectMultiBackend
+from yolov7.models.experimental import attempt_load
 from yolov7.utils.general import LOGGER, logging
 from yolov7.utils.torch_utils import torch
 
