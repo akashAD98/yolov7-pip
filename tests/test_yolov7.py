@@ -21,7 +21,7 @@ class TestYolov7(unittest.TestCase):
 
         # init model
         model_path = TestConstants.YOLOV7_MODEL_PATH
-        yolov5 = YOLOv7(model_path, DEVICE, load_on_init=True)
+        yolov7 = YOLOv7(model_path, DEVICE, load_on_init=True)
 
         # check if loaded
         self.assertNotEqual(yolov7.model, None)
@@ -55,8 +55,7 @@ class TestYolov7(unittest.TestCase):
         # compare
         self.assertEqual(results.n, 1)
         self.assertEqual(len(results.names), 80)
-        self.assertEqual(len(results.pred[0]), 5)
-        
+        self.assertEqual(len(results.pred[0]), 5)        
         # init YOLOv7-W6 model
         model_path = TestConstants.YOLOv7_W6_MODEL_PATH
         yolov7 = YOLOv7(model_path, DEVICE, load_on_init=True)
@@ -115,8 +114,8 @@ class TestYolov7(unittest.TestCase):
         self.assertEqual(results.n, 2)
         self.assertEqual(len(results.names), 80)
         self.assertEqual(len(results.pred[0]), 4)
-        self.assertEqual(len(results.pred[1]), 5)
-        
+        self.assertEqual(len(results.pred[1]), 5)        
+    
     def test_hublike_load_model(self):
         import yolov7
 
@@ -133,7 +132,7 @@ class TestYolov7(unittest.TestCase):
 
         # init yolov5s model
         model_path = TestConstants.YOLOV7_MODEL_PATH
-        #model_path = '/home/fatihakyon/dev/obss/ml/drone-tracking/drone-detection/[coco-bb]_33k_yolov5m6_1344input/weights/best.pt'
+
         model = yolov7.load(model_path, device=DEVICE)
 
         # prepare image
@@ -146,8 +145,7 @@ class TestYolov7(unittest.TestCase):
         # compare
         self.assertEqual(results.n, 1)
         self.assertEqual(len(results.names), 80)
-        self.assertEqual(len(results.pred[0]), 4)
-        
+        self.assertEqual(len(results.pred[0]), 4)        
         # init YOLOv7_W6 model
         model_path = TestConstants.YOLOv7_W6_MODEL_PATH
         model = yolov7.load(model_path, device=DEVICE)
