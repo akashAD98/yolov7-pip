@@ -22,8 +22,8 @@ from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 
 import test  # import test.py to get mAP after each epoch
-from models.experimental import attempt_load
-from models.yolo import Model
+from yolov7.models.experimental import attempt_load
+from yolov7.models.yolo import Model
 from yolov7.utils.autoanchor import check_anchors
 from yolov7utils.datasets import create_dataloader
 from yolov7utils.general import labels_to_class_weights, increment_path, labels_to_image_weights, init_seeds, \
