@@ -1,0 +1,79 @@
+name: ci testing
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        operating-system: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: [3.7, 3.8, 3.9]
+      fail-fast: false
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Restore Ubuntu cache
+        uses: actions/cache@v1
+        if: matrix.operating-system == 'ubuntu-latest'
+        with:
+          path: ~/.cache/pip
+          key: ${{ matrix.os }}-${{ matrix.python-version }}-${{ hashFiles('**/setup.py')}}
+          restore-keys: ${{ matrix.os }}-${{ matrix.python-version }}-
+      - name: Restore MacOS cache
+        uses: actions/cache@v1
+        if: matrix.operating-system == 'macos-latest'
+        with:
+          path: ~/Library/Caches/pip
+          key: ${{ matrix.os }}-${{ matrix.python-version }}-${{ hashFiles('**/setup.py')}}
+          restore-keys: ${{ matrix.os }}-${{ matrix.python-version }}-
+      - name: Restore Windows cache
+        uses: actions/cache@v1
+        if: matrix.operating-system == 'windows-latest'
+        with:
+          path: ~\AppData\Local\pip\Cache
+          key: ${{ matrix.os }}-${{ matrix.python-version }}-${{ hashFiles('**/setup.py')}}
+          restore-keys: ${{ matrix.os }}-${{ matrix.python-version }}-
+      - name: Update pip
+        run: python -m pip install --upgrade pip
+      - name: Install  numpy and matplotlib for Python 3.6
+        if: matrix.python-version == 3.6
+        run: >
+          pip install "numpy>=1.18.5,<1.20" "matplotlib>=3.2.2,<4"
+      - name: Install dependencies
+        run: >
+          pip install -r requirements.txt
+      - name: Test with unittest
+        run: |
+          python -m unittest
+      - name: Test scripts
+        run: |
+          pip install -e .
+          di=cpu # inference devices  # define device
+          # train
+          python yolov5/train.py --img 128 --batch 16 --weights yolov5/weights/yolov5n.pt --epochs 1 --device $di
+          yolov5 train --img 128 --batch 16 --weights yolov5/weights/yolov5n.pt --epochs 1 --device $di
+          # detect
+          python yolov5/detect.py --weights yolov5/weights/yolov5n.pt --device $di
+          yolov5 detect --weights yolov5/weights/yolov5n.pt --device $di
+          python yolov5/detect.py --weights runs/train/exp/weights/last.pt --device $di
+          yolov5 detect --weights runs/train/exp/weights/last.pt --device $di
+          # val
+          python yolov5/val.py --img 128 --batch 16 --weights yolov5/weights/yolov5n.pt --device $di
+          yolov5 val --data yolov5/data/coco128.yaml --img 128 --batch 16 --weights yolov5/weights/yolov5n.pt --device $di
+          python yolov5/val.py --img 128 --batch 16 --weights runs/train/exp/weights/last.pt --device $di
+          yolov5 val --data yolov5/data/coco128.yaml --img 128 --batch 16 --weights runs/train/exp/weights/last.pt --device $di
+          # export
+          pip install onnx onnx-simplifier tensorflowjs
+          python yolov5/export.py --weights yolov5/weights/yolov5n.pt --device $di --include 'torchscript,onnx,tflite'
+          yolov5 export --weights yolov5/weights/yolov5n.pt --device $di --simplify --include 'torchscript,onnx,saved_model,pb,tfjs'
